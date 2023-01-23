@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#1d2129" d="M0 0h140v140H0z"/>
+  <circle cx="40" cy="40" r="30" fill="#fff"/>
+  <circle cx="30" cy="40" r="5" fill="#1d2129"/>
+  <circle cx="50" cy="40" r="5" fill="#1d2129"/>
+  <path d="M35 45h10" stroke="#1d2129" stroke-width="2"/>
+</svg>

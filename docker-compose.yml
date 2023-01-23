@@ -1,0 +1,22 @@
+version: '3.3'
+services:
+  llm-api:
+    command: "supervisord -c /app/supervisord.conf"
+    container_name: llm-api
+    ports:
+      - "3000:3000"
+    build: https://github.com/tuannm151/node-chatgpt-api.git#main
+    volumes:
+      - './llm-settings.js:/app/settings.js'
+  matrix-llm-bot:
+    container_name: matrix-llm-bot
+    depends_on:
+      - llm-api
+    env_file:
+        "./.env"
+    environment:
+      - LLM_API_URL=http://llm-api:3000/conversation
+    # image: matrix-llm-bot
+    build: .
+    volumes:
+        - './data:/app/data'
