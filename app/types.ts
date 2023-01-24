@@ -14,8 +14,7 @@ type CommonMatrixEventFields = {
       // Something easy to render for other client like a `m.room.message` event.
       "event_id": string
     },
-    // A flag to denote that this is a thread with reply fallback
-    "is_falling_back": string
+    "is_falling_back"?: string // Flag that denotes this is a thread with reply fallback
   }
   
   export type MessageEvent = CommonMatrixEventFields & {
@@ -35,8 +34,7 @@ type CommonMatrixEventFields = {
     content: {
       'm.relates_to'?: {
         event_id: string
-        /** The emoji itself */
-        key: string
+        key: string /** The emoji itself */
       }
     }
   }
@@ -67,15 +65,16 @@ type CommonMatrixEventFields = {
     event_id: string
   }
   export type MembershipType = 'leave' | 'invite' | 'join'
-  
+
   export type ContextThread = {
     threadRootId: string;
-    messageId: string;
+    parentMessageId: string;
+    events?: [CommonMatrixEventFields];
   }
   
   export type Context = {
     conversationId: string;
-    messageId: string;
-    thread: ContextThread;
+    parentMessageId: string;
+    events?: [CommonMatrixEventFields];
+    threads?: [ContextThread];
   }
-  

@@ -18,7 +18,6 @@ export const {
   ENCRYPTION,
   REQUIRE_MENTION,
   REQUIRE_MENTION_DM,
-  RICH_TEXT,
   THREADS,
 } = parseEnv(process.env, {
   /** Matrix Bot Settings */
@@ -46,8 +45,6 @@ export const {
     description: "Set to false if you want the bot to answer to all messages in a thread/conversation"},
   REQUIRE_MENTION_DM:   { schema: z.boolean().default(false),
     description: "Set to false if you want the bot to answer to all messages in a one-to-one room"},
-  RICH_TEXT:            { schema: z.boolean().default(true),
-    description: "Set to true if you want the bot to answer with enriched text"},
   THREADS:              { schema: z.boolean().default(true),
     description: "Set to true if you want the bot to answer always in a new thread/conversation"},
 });

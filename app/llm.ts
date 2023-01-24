@@ -1,17 +1,21 @@
 import { ConsoleLogger, MatrixClient } from "matrix-bot-sdk";
 
-import { MessageEvent } from "./interfaces.js";
-import { LLM_API_URL } from "./settings.js";
+import { LLM_API_URL } from "settings";
+import { Context, MessageEvent } from "types";
 
-export async function changeActor(client: MatrixClient, roomId: string, event: any, ) {
-    client.replyNotice(roomId, event, 'changeActor: Not implemented error!')
+export async function changeModel(client: MatrixClient, roomId: string, event: any, ) {
+    client.replyNotice(roomId, event, 'changeModel: Not implemented error!')
+}
+
+export async function changeVoice(client: MatrixClient, roomId: string, event: any, ) {
+    client.replyNotice(roomId, event, 'changeVoice: Not implemented error!')
 }
 
 export async function askLLM(client: MatrixClient, roomId: string, event: MessageEvent, llm="chatgpt") {
     const body: any = {'message': event.content.body, 'llm': llm}
     const context: any = await fetchContext(client, roomId, event)
     if(context.conversationId) body['conversationId'] = context.conversationId
-    if(context.parentMessageId) body['parentMessageId'] = context.parentMessageId
+    if(context.parentMessageId) body['messageId'] = context.parentMessageId  // TODO: fix upstream to use parentMessageId not messageId
     console.log(body)
     await fetch(LLM_API_URL, {method: 'POST', headers: {'content-type': 'application/json;charset=UTF-8'},
         body: JSON.stringify(body),
@@ -27,9 +31,7 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
         } else {
             console.error(response)
         } 
-    }).catch((error: any) => {
-        console.error(error)
-    })
+    }).catch((error: any) => {console.error(error)})
 }
 
 export async function storageKey(client: MatrixClient, roomId: string, event: any): Promise<string> {
@@ -37,11 +39,11 @@ export async function storageKey(client: MatrixClient, roomId: string, event: an
     return roomId // TODO: we need to know if this should be at the room level or the thread level.
 }
 
-export async function fetchContext(client: MatrixClient, roomId: string, event: any): Promise<any> {
+export async function fetchContext(client: MatrixClient, roomId: string, event: any): Promise<Context> {
     const context = await client.storageProvider.readValue(await storageKey(client, roomId, event)) || "{}"
     return JSON.parse(context)
 }
 
-export async function storeContext(client: MatrixClient, roomId: string, event: any, context: any) {
+export async function storeContext(client: MatrixClient, roomId: string, event: any, context: Context) {
     await client.storageProvider.storeValue(await storageKey(client, roomId, event), JSON.stringify(context))
 }
