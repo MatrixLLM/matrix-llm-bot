@@ -15,7 +15,7 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
     const body: any = {'message': event.content.body, 'llm': llm}
     const context: any = await fetchContext(client, roomId, event)
     if(context.conversationId) body['conversationId'] = context.conversationId
-    if(context.parentMessageId) body['messageId'] = context.parentMessageId  // TODO: fix upstream to use parentMessageId not messageId
+    if(context.parentMessageId) body['parentMessageId'] = context.parentMessageId
     console.log(body)
     await fetch(LLM_API_URL, {method: 'POST', headers: {'content-type': 'application/json;charset=UTF-8'},
         body: JSON.stringify(body),
@@ -29,6 +29,7 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
             })
             client.replyNotice(roomId, event, `${output.response}`)
         } else {
+            client.replyNotice(roomId, event, response.status + ': ' + response.statusText)
             console.error(response)
         } 
     }).catch((error: any) => {console.error(error)})
