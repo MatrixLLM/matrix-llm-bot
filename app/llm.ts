@@ -1,4 +1,4 @@
-import { ConsoleLogger, MatrixClient } from "matrix-bot-sdk";
+import { LogService, MatrixClient } from "matrix-bot-sdk";
 
 import { LLM_API_URL } from "settings";
 import { Context, MessageEvent } from "types";
@@ -16,12 +16,12 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
     const context: any = await fetchContext(client, roomId, event)
     if(context.conversationId) body['conversationId'] = context.conversationId
     if(context.parentMessageId) body['parentMessageId'] = context.parentMessageId
-    console.log(body)
+    LogService.info('LlmApi', `conversationId: ${body.conversationId} parentMessageId: ${body.parentMessageId}`)
     await fetch(LLM_API_URL, {method: 'POST', headers: {'content-type': 'application/json;charset=UTF-8'},
         body: JSON.stringify(body),
     }).then(async (response: any) => {
         if (response.ok) {
-            const output = await response.json()
+            const output = await response.json() // TODO: error handling for if JSON is bad
             console.log(output)
             storeContext(client, roomId, event, {
                 'conversationId': output.conversationId,
@@ -30,9 +30,9 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
             client.replyNotice(roomId, event, `${output.response}`)
         } else {
             client.replyNotice(roomId, event, response.status + ': ' + response.statusText)
-            console.error(response)
+            LogService.error('LlmApi', response)
         } 
-    }).catch((error: any) => {console.error(error)})
+    }).catch((error: any) => {LogService.error('LlmApi', error)})
 }
 
 export async function storageKey(client: MatrixClient, roomId: string, event: any): Promise<string> {

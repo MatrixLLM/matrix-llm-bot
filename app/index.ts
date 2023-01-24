@@ -1,21 +1,28 @@
-import { MatrixAuth, MatrixClient } from 'matrix-bot-sdk';
+import { LogService, LogLevel, MatrixAuth, MatrixClient, RichConsoleLogger } from 'matrix-bot-sdk';
 import { setupClient, startClient, awaitMoreInput, onMessage, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
 import { ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, WHITELIST } from 'settings';
+import { MessageEvent } from 'types';
 import { askLLM, changeModel, changeVoice } from 'llm'
+
+LogService.setLogger(new RichConsoleLogger());
+// LogService.setLevel(LogLevel.DEBUG); // Show Matrix sync loop details - not needed most of the time
+LogService.setLevel(LogLevel.INFO);
+LogService.muteModule("Metrics");
+LogService.trace = LogService.debug;
 
 async function onEvents(client : MatrixClient) {
     onMessage(client, 
-        async (roomId : string, event : any, sender: string, content: any, body: any, requestEventId: string, isEdit: boolean, isHtml: boolean, mentioned: string) => {
+        async (roomId : string, event : MessageEvent, sender: string, content: any, body: any, requestEventId: string, isEdit: boolean, isHtml: boolean, mentioned: string) => {
         if (BLACKLIST &&  BLACKLIST.split(" ").find(b => event.sender.endsWith(b))) return true;  // Ignore if on blacklist if set
         if (WHITELIST && !WHITELIST.split(" ").find(w => event.sender.endsWith(w))) return true;  // Ignore if not on whitelist if set
-        if (isHtml && mentioned) {
+        if ((isHtml && mentioned) || client.dms.isDm(roomId)) {
             await Promise.all([
                 client.sendReadReceipt(roomId, event.event_id),
                 client.setTyping(roomId, true, 20000)
             ]);
-            let command: string = mentioned.toLowerCase();
-            console.log('Command is: ' + command)
+            let command: string = (mentioned !== "") ? mentioned.toLowerCase() : event.content.body; //TODO: should be html not body?
+            LogService.info('Index', `Received: ${command}`)
             if (command.includes('picture') || command.includes('avatar')) {
                 awaitMoreInput(client, roomId, event,
                     true, 
@@ -64,7 +71,7 @@ async function onEvents(client : MatrixClient) {
                 client.replyNotice(roomId, event, 'printHelp: Not implemented error!')
             }
             else {
-                askLLM(client, roomId, event)
+                await askLLM(client, roomId, event)
             }
             await client.setTyping(roomId, false, 500)
         }
@@ -75,7 +82,7 @@ async function newClient() : Promise<MatrixClient> {
     if (!ACCESS_TOKEN){
         if (LOGINNAME !== undefined && PASSWORD !== undefined) {
             const authedClient = await (new MatrixAuth(HOMESERVER_URL)).passwordLogin(LOGINNAME, PASSWORD);
-            console.log(authedClient.homeserverUrl + " token: \n" + authedClient.accessToken)
+            LogService.info('Index', authedClient.homeserverUrl + " token: \n" + authedClient.accessToken)
             throw Error("Set ACCESS_TOKEN to above token, LOGINNAME and PASSWORD should now be blank")
         } else {
             throw Error("You need to set at least ACCESS_TOKEN")
