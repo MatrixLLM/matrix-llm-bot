@@ -1,13 +1,19 @@
 import { MatrixAuth, MatrixClient } from 'matrix-bot-sdk';
 import { setupClient, startClient, awaitMoreInput, onMessage, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
-import { ACCESS_TOKEN, HOMESERVER_URL, LOGINNAME, PASSWORD } from 'settings';
+import { ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, WHITELIST } from 'settings';
 import { askLLM, changeModel, changeVoice } from 'llm'
 
 async function onEvents(client : MatrixClient) {
     onMessage(client, 
         async (roomId : string, event : any, sender: string, content: any, body: any, requestEventId: string, isEdit: boolean, isHtml: boolean, mentioned: string) => {
+        if (BLACKLIST &&  BLACKLIST.split(" ").find(b => event.sender.endsWith(b))) return true;  // Ignore if on blacklist if set
+        if (WHITELIST && !WHITELIST.split(" ").find(w => event.sender.endsWith(w))) return true;  // Ignore if not on whitelist if set
         if (isHtml && mentioned) {
+            await Promise.all([
+                client.sendReadReceipt(roomId, event.event_id),
+                client.setTyping(roomId, true, 20000)
+            ]);
             let command: string = mentioned.toLowerCase();
             console.log('Command is: ' + command)
             if (command.includes('picture') || command.includes('avatar')) {
@@ -60,6 +66,7 @@ async function onEvents(client : MatrixClient) {
             else {
                 askLLM(client, roomId, event)
             }
+            await client.setTyping(roomId, false, 500)
         }
     });
 }
