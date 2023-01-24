@@ -4,6 +4,7 @@ services:
     command: "supervisord -c /app/supervisord.conf"
     container_name: llm-api
     ports:
+      # - "8045:8045" # optional (novnc port for solving captcha manually)
       - "3000:3000"
     build: https://github.com/tuannm151/node-chatgpt-api.git#main
     volumes:
