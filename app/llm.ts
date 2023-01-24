@@ -23,9 +23,17 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
         if (response.ok) {
             const output = await response.json()
             console.log(output)
+            const events = context.events ? context.events : []
+            events.push({
+                'origin_server_ts': event.origin_server_ts,
+                'sender': event.sender,
+                'event_id': event.event_id,
+                'response': output.response
+            })
             storeContext(client, roomId, event, {
                 'conversationId': output.conversationId,
-                'parentMessageId': output.messageId // TODO: fix upstream to use output.parentMessageId
+                'parentMessageId': output.messageId, // TODO: fix upstream to use parentMessageId not messageId
+                'events': events
             })
             client.replyNotice(roomId, event, `${output.response}`)
         } else {
