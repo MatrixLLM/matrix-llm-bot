@@ -65,16 +65,8 @@ type CommonMatrixEventFields = {
     event_id: string
   }
   export type MembershipType = 'leave' | 'invite' | 'join'
-
-  export type ContextThread = {
-    threadRootId: string;
-    parentMessageId: string;
-    events?: [CommonMatrixEventFields];
-  }
   
   export type Context = {
     conversationId: string;
     parentMessageId: string;
-    events?: [CommonMatrixEventFields];
-    threads?: [ContextThread];
   }

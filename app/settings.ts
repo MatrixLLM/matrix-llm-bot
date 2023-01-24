@@ -5,6 +5,7 @@ dotenv.config();
 
 export const {
   LLM_API_URL,
+  REDIS_URL,
   /** Matrix Bot Settings */
   HOMESERVER_URL,
   ACCESS_TOKEN,
@@ -18,14 +19,15 @@ export const {
   ENCRYPTION,
   REQUIRE_MENTION,
   REQUIRE_MENTION_DM,
-  THREADS,
 } = parseEnv(process.env, {
   /** Matrix Bot Settings */
   LLM_API_URL:          { schema: z.string().url().default("http://localhost:3000/conversation"),
     description: "Set LLM APIs location with 'http(s)://' prefix"},
+  REDIS_URL:            { schema: z.string().default(""),
+    description: "Set to redis instance if you want to use redis instead of the file system for state"},
   HOMESERVER_URL:       { schema: z.string().url().default("https://matrix.org"),
     description: "Set matrix homeserver with 'https://' prefix"},
-  ACCESS_TOKEN:         { schema: z.string().optional(),
+  ACCESS_TOKEN:         { schema: z.string().default(""),
     description: "Set LOGINNAME & PASSWORD or ACCESS_TOKEN (which supercedes the former)"},
   LOGINNAME:            { schema: z.string().optional(),
     description: "Set LOGINNAME & PASSWORD or ACCESS_TOKEN (which supercedes the former)"},
@@ -45,6 +47,4 @@ export const {
     description: "Set to false if you want the bot to answer to all messages in a thread/conversation"},
   REQUIRE_MENTION_DM:   { schema: z.boolean().default(false),
     description: "Set to false if you want the bot to answer to all messages in a one-to-one room"},
-  THREADS:              { schema: z.boolean().default(true),
-    description: "Set to true if you want the bot to answer always in a new thread/conversation"},
 });

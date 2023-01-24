@@ -3,20 +3,39 @@ services:
   llm-api:
     command: "supervisord -c /app/supervisord.conf"
     container_name: llm-api
+    # Leave 8045 shut or set a password on VNC if exposed online
+    # Leave 3000 shut if only using docker
     ports:
       # - "8045:8045" # optional (novnc port for solving captcha manually)
       - "3000:3000"
     build: https://github.com/tuannm151/node-chatgpt-api.git#main
     volumes:
       - './llm-settings.js:/app/settings.js'
+  redis-db:
+    container_name: redis-db
+    command: bash -c "redis-server --appendonly yes"
+    image: redis
+    # Leave ports shut or set a password if exposed online
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+  redis-ui:
+    image: patrikx3/p3x-redis-ui:latest
+    ports:
+        - 7843:7843
+    volumes:
+        - ./data/redis-ui/:/settings
   matrix-llm-bot:
     container_name: matrix-llm-bot
     depends_on:
       - llm-api
+      - redis-db
     env_file:
         "./.env"
     environment:
       - LLM_API_URL=http://llm-api:3000/conversation
+      - REDIS_URL=redis://redis-db:6379
     # image: matrix-llm-bot
     build: .
     volumes:

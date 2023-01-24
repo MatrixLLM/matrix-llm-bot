@@ -35,16 +35,22 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
     }).catch((error: any) => {LogService.error('LlmApi', error)})
 }
 
-export async function storageKey(client: MatrixClient, roomId: string, event: any): Promise<string> {
-    // const threadStartEventId = event['content']['m.relates_to'] ? event['content']['m.relates_to']['event_id'] : event['event_id'];
-    return roomId // TODO: we need to know if this should be at the room level or the thread level.
-}
-
 export async function fetchContext(client: MatrixClient, roomId: string, event: any): Promise<Context> {
-    const context = await client.storageProvider.readValue(await storageKey(client, roomId, event)) || "{}"
-    return JSON.parse(context)
+    const storageKey = event.content['m.relates_to']?.event_id ?
+        reverseColon(roomId) + ":" + event.content['m.relates_to'].event_id : reverseColon(roomId)
+    LogService.info('context', "read using key: " + storageKey)
+    return JSON.parse(await client.storageProvider.readValue(storageKey) || "{}")
 }
 
 export async function storeContext(client: MatrixClient, roomId: string, event: any, context: Context) {
-    await client.storageProvider.storeValue(await storageKey(client, roomId, event), JSON.stringify(context))
+    const storageKey = event.content['m.relates_to']?.event_id ?
+        reverseColon(roomId) + ":" + event.content['m.relates_to'].event_id : reverseColon(roomId)
+    LogService.info('context', "save using key: " + storageKey)
+    await client.storageProvider.storeValue(storageKey, JSON.stringify(context))
+    // if storing by room key also store by event key so future threads can use these values
+    if (storageKey === reverseColon(roomId)) await client.storageProvider.storeValue(reverseColon(roomId) + ":" + event.event_id, JSON.stringify(context))
+}
+
+function reverseColon(roomId: string) {
+    return roomId.split(":")[1] + ":" + roomId.split(":")[0]
 }
