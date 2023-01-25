@@ -2,6 +2,7 @@ import { LogService, MatrixClient } from "matrix-bot-sdk";
 
 import { LLM_API_URL } from "settings";
 import { Context, MessageEvent } from "types";
+import { replyNotice } from 'utils';
 
 export async function changeModel(client: MatrixClient, roomId: string, event: any, ) {
     client.replyNotice(roomId, event, 'changeModel: Not implemented error!')
@@ -27,9 +28,9 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
                 'conversationId': output.conversationId,
                 'parentMessageId': output.messageId // TODO: fix upstream to use output.parentMessageId
             })
-            client.replyNotice(roomId, event, `${output.response}`)
+            replyNotice(client, roomId, event, `${output.response}`, true)
         } else {
-            client.replyNotice(roomId, event, response.status + ': ' + response.statusText)
+            replyNotice(client, roomId, event, response.status + ': ' + response.statusText, true)
             LogService.error('LlmApi', response)
         } 
     }).catch((error: any) => {LogService.error('LlmApi', error)})
@@ -38,14 +39,14 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
 export async function fetchContext(client: MatrixClient, roomId: string, event: any): Promise<Context> {
     const storageKey = event.content['m.relates_to']?.event_id ?
         reverseColon(roomId) + ":" + event.content['m.relates_to'].event_id : reverseColon(roomId)
-    LogService.info('context', "read using key: " + storageKey)
+    LogService.info('Context', "read using key: " + storageKey)
     return JSON.parse(await client.storageProvider.readValue(storageKey) || "{}")
 }
 
 export async function storeContext(client: MatrixClient, roomId: string, event: any, context: Context) {
     const storageKey = event.content['m.relates_to']?.event_id ?
         reverseColon(roomId) + ":" + event.content['m.relates_to'].event_id : reverseColon(roomId)
-    LogService.info('context', "save using key: " + storageKey)
+    LogService.info('Context', "save using key: " + storageKey)
     await client.storageProvider.storeValue(storageKey, JSON.stringify(context))
     // if storing by room key also store by event key so future threads can use these values
     if (storageKey === reverseColon(roomId)) await client.storageProvider.storeValue(reverseColon(roomId) + ":" + event.event_id, JSON.stringify(context))

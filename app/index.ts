@@ -85,7 +85,6 @@ export async function setupClient() {
     return client;
 }
 
-
 async function newClient() : Promise<MatrixClient> {
     if (!ACCESS_TOKEN){
         if (LOGINNAME !== undefined && PASSWORD !== undefined) {
