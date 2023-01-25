@@ -31,7 +31,7 @@ The easiest way to get started is using Docker to run both the embedded matrix-l
 
 - `docker-compose up -d --build llm-api` to start the embedded API.
 - `docker-compose up -d --build matrix-llm-bot` to start the bot.
-- `docker-compose logs --follow` to see logs, ctrl+c to exit (bot & api keep running)
+- `docker-compose logs --follow` to see logs, ctrl+c to exit (bot & api keep running).
 
 If you make changes to the code you need to run the 1st command below before building the Docker image.
 
@@ -39,8 +39,8 @@ If you make changes to the code you need to run the 1st command below before bui
 
 You can use the 1st command above to run the embedded matrix-llm-api using Docker if you prefer.
 
-- `npm install && npm build`.
-- `npm dev` for development, or `npm start` in production
+- `npm install` to install dependencies.
+- `npm dev` for development, or `npm start` in production.
 
 ## NPM commands
 

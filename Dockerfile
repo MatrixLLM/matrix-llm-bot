@@ -1,10 +1,10 @@
 FROM node:lts-slim
 
-WORKDIR /app
+WORKDIR /src/
 
 COPY package*.json ./
 RUN ["npm", "ci"]
 
-COPY app/ .
+COPY app/ ./app
 COPY tsconfig.json .
 CMD ["npm", "start"]

@@ -39,4 +39,4 @@ services:
     # image: matrix-llm-bot
     build: .
     volumes:
-        - './data:/app/data'
+        - './data:/src/data'
