@@ -1,3 +1,4 @@
+import Markdown from 'markdown-it';
 import { AutojoinRoomsMixin, LogService, LogLevel, MatrixAuth, MatrixClient, RichConsoleLogger, SimpleFsStorageProvider, RustSdkCryptoStorageProvider } from 'matrix-bot-sdk';
 import { startClient, awaitMoreInput, onMessage, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
@@ -12,6 +13,15 @@ LogService.setLevel(LogLevel.INFO);
 LogService.muteModule("Metrics");
 LogService.trace = LogService.debug;
 
+const md = Markdown();
+const COMMANDS = `
+| Command | Alias  |            Description            |
+|:-------:|:------:|:---------------------------------:|
+| picture | avatar |    Change bot profile picture.    |
+|  name   | handle |      Change bot profile name.     |
+|  clear  | reset  | Clear context for room or thread. |
+`
+
 async function onEvents(client : MatrixClient) {
     onMessage(client, 
         async (roomId : string, event : MessageEvent, sender: string, content: any, body: any, requestEventId: string, isEdit: boolean, isHtml: boolean, mentioned: string) => {
@@ -22,9 +32,10 @@ async function onEvents(client : MatrixClient) {
                 client.sendReadReceipt(roomId, event.event_id),
                 client.setTyping(roomId, true, 20000)
             ]);
-            let command: string = (mentioned !== "") ? mentioned.toLowerCase() : event.content.body; //TODO: should be html not body?
+            const command: string = mentioned.toLowerCase() //TODO: should be html not body?
+            // TODO: clear mention from command if exists
             LogService.info('Index', `Received: ${command}`)
-            if (command.includes('picture') || command.includes('avatar')) {
+            if (command === 'picture' || command === 'avatar') {
                 awaitMoreInput(client, roomId, event, true, 
                     {
                         description: 'avatar change',
@@ -34,7 +45,7 @@ async function onEvents(client : MatrixClient) {
                     'Setting new avatar! If your next message is an image, I will update my avatar to that.',
                     false);    
             }
-            else if (command.includes('name') || command.includes('handle')) {
+            else if (command === 'name' || command === 'handle') {
                 awaitMoreInput(client, roomId, event, true, 
                     {
                         description: 'display name change',
@@ -44,7 +55,7 @@ async function onEvents(client : MatrixClient) {
                     'Setting new display name! I\'ll set it to the contents of your next message.',
                     false);
             }
-            else if (command.includes('model') || command.includes('engine')) {
+            else if (command === 'model' || command === 'engine') {
                 awaitMoreInput(client, roomId, event, true, 
                     {
                         description: 'model change',
@@ -54,7 +65,7 @@ async function onEvents(client : MatrixClient) {
                     'I\'ll set the model to the content of your next message. Available actors: frontend-dev',
                     false);
             }
-            else if (command.includes('voice') || command.includes('actor')) {
+            else if (command === 'voice' || command === 'actor') {
                 awaitMoreInput(client, roomId, event, true, 
                     {
                         description: 'voice change',
@@ -64,8 +75,13 @@ async function onEvents(client : MatrixClient) {
                     'I\'ll set the voice to the content of your next message. Available voices: frontend-dev',
                     false);
             }
-            else if (command.includes('clear')) { await clearContext(client, roomId, event) }
-            else if (command.includes('help')) { client.replyNotice(roomId, event, 'Commands: avatar | name') }
+            else if (command === 'clear'|| command === 'reset') {
+                await clearContext(client, roomId, event)
+            }
+            else if (command === 'help' || command === 'commands') {
+                client.replyNotice(roomId, event, COMMANDS, md.render(COMMANDS))
+            }
+            // TODO: check for secondary commands from moreInput before asking LLM
             else { await askLLM(client, roomId, event) }
             await client.setTyping(roomId, false, 500)
         }
