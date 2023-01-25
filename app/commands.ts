@@ -8,17 +8,17 @@ import { replyNotice } from 'utils';
 
 const md = Markdown();
 
-export async function changeModel(client: MatrixClient, roomId: string, event: any, ) {
-    client.replyNotice(roomId, event, 'changeModel: Not implemented error!')
+export async function changeModel(client: MatrixClient, roomId: string, event: any) {
+    replyNotice(client, roomId, event, 'changeModel: Not implemented error!', THREADS)
 }
 
 export async function changeVoice(client: MatrixClient, roomId: string, event: any, ) {
-    client.replyNotice(roomId, event, 'changeVoice: Not implemented error!')
+    replyNotice(client, roomId, event, 'changeVoice: Not implemented error!', THREADS)
 }
 
 export async function clearContext(client: MatrixClient, roomId: string, event: any, ) {
     storeContext(client, roomId, event, {})
-    replyNotice(client, roomId, event, 'Context cleared', true)
+    replyNotice(client, roomId, event, 'Context cleared', THREADS)
 }
 
 export async function askLLM(client: MatrixClient, roomId: string, event: MessageEvent, llm="chatgpt") {
