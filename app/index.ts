@@ -1,11 +1,12 @@
 import Markdown from 'markdown-it';
 import { AutojoinRoomsMixin, LogService, LogLevel, MatrixAuth, MatrixClient, RichConsoleLogger, SimpleFsStorageProvider, RustSdkCryptoStorageProvider } from 'matrix-bot-sdk';
-import { startClient, awaitMoreInput, onMessage, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
+import { startClient, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
-import { askLLM, changeModel, changeVoice, clearContext } from 'llm'
+import { askLLM, changeModel, changeVoice, clearContext } from 'commands'
 import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, REDIS_URL, WHITELIST, THREADS } from 'settings';
 import { RedisStorageProvider } from 'storage';
 import { MessageEvent } from 'types';
+import { awaitMoreInput, onMessage } from 'utils';
 
 LogService.setLogger(new RichConsoleLogger());
 // LogService.setLevel(LogLevel.DEBUG); // Show Matrix sync loop details - not needed most of the time
@@ -25,8 +26,9 @@ const COMMANDS = `
 async function onEvents(client : MatrixClient) {
     onMessage(client, 
         async (roomId : string, event : MessageEvent, sender: string, content: any, body: any, requestEventId: string, isEdit: boolean, isHtml: boolean, mentioned: string) => {
-        if (BLACKLIST &&  BLACKLIST.split(" ").find(b => event.sender.endsWith(b))) return true;  // Ignore if on blacklist if set
-        if (WHITELIST && !WHITELIST.split(" ").find(w => event.sender.endsWith(w))) return true;  // Ignore if not on whitelist if set
+        if (BLACKLIST &&  BLACKLIST.split(" ").find(b => event.sender.endsWith(b))) return;  // Ignore if on blacklist if set
+        if (WHITELIST && !WHITELIST.split(" ").find(w => event.sender.endsWith(w))) return;  // Ignore if not on whitelist if set
+        if (isEdit) return;
         if ((isHtml && mentioned) || client.dms.isDm(roomId)) {
             await Promise.all([
                 client.sendReadReceipt(roomId, event.event_id),
@@ -43,7 +45,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeAvatar
                     }, 
                     'Setting new avatar! If your next message is an image, I will update my avatar to that.',
-                    false);    
+                    THREADS);    
             }
             else if (command === 'name' || command === 'handle') {
                 awaitMoreInput(client, roomId, event, true, 
@@ -53,7 +55,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeDisplayname
                     }, 
                     'Setting new display name! I\'ll set it to the contents of your next message.',
-                    false);
+                    THREADS);
             }
             else if (command === 'model' || command === 'engine') {
                 awaitMoreInput(client, roomId, event, true, 
@@ -63,7 +65,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeModel
                     }, 
                     'I\'ll set the model to the content of your next message. Available actors: frontend-dev',
-                    false);
+                    THREADS);
             }
             else if (command === 'voice' || command === 'actor') {
                 awaitMoreInput(client, roomId, event, true, 
@@ -73,7 +75,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeVoice
                     }, 
                     'I\'ll set the voice to the content of your next message. Available voices: frontend-dev',
-                    false);
+                    THREADS);
             }
             else if (command === 'clear'|| command === 'reset') {
                 await clearContext(client, roomId, event)

@@ -54,13 +54,16 @@ The following NPM commands are available when not using Docker:
 
 ## Structure
 - [app/](app/)
+    - [commands.ts](app/commands.ts): handles all commands including LLM stuff.
     - [index.ts](app/index.ts): basic boilerplate for the bot client.
-    - [llm.ts](app/llm.ts): handles all LLM specific stuff.
     - [settings.ts](app/settings.ts): see here for reference of bot settings.
 - [assets/](assets/): Images (and an image script) for use in the README.
-- *build/*: Made during runtime. Compiled javascript code.
-- *.env*: Manually made. Environment variables to use when running locally.
-- *llm-settings.js*: Manually made. These are the settings that will be passed by matrix-llm-api
+- [/](/)
+    - [docker-compose.yml](docker-compose.yml): setup required containers and useful extras.
+    - [Dockerfile](Dockerfile): create a container just to run this bot.
+    - *build/*: Made during runtime. Compiled javascript code.
+    - *.env*: Manually made. Environment variables to use when running locally.
+    - *llm-settings.js*: Manually made. Settings that will be passed by matrix-llm-api
 
 ## License
 This template is in the [public domain](LICENSE). Matrix-Bot-Starter is licensed under the [MIT License](https://github.com/matrixllm/Matrix-Bot-Starter/blob/main/LICENSE).
