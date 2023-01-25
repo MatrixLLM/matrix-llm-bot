@@ -16,6 +16,11 @@ export async function changeVoice(client: MatrixClient, roomId: string, event: a
     client.replyNotice(roomId, event, 'changeVoice: Not implemented error!')
 }
 
+export async function clearContext(client: MatrixClient, roomId: string, event: any, ) {
+    storeContext(client, roomId, event, {})
+    replyNotice(client, roomId, event, 'Context cleared', true)
+}
+
 export async function askLLM(client: MatrixClient, roomId: string, event: MessageEvent, llm="chatgpt") {
     const body: any = {'message': event.content.body, 'llm': llm}
     const context: any = await fetchContext(client, roomId, event)

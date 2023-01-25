@@ -1,7 +1,7 @@
 import { AutojoinRoomsMixin, LogService, LogLevel, MatrixAuth, MatrixClient, RichConsoleLogger, SimpleFsStorageProvider, RustSdkCryptoStorageProvider } from 'matrix-bot-sdk';
 import { startClient, awaitMoreInput, onMessage, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
-import { askLLM, changeModel, changeVoice } from 'llm'
+import { askLLM, changeModel, changeVoice, clearContext } from 'llm'
 import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, REDIS_URL, WHITELIST, THREADS } from 'settings';
 import { RedisStorageProvider } from 'storage';
 import { MessageEvent } from 'types';
@@ -64,9 +64,8 @@ async function onEvents(client : MatrixClient) {
                     'I\'ll set the voice to the content of your next message. Available voices: frontend-dev',
                     false);
             }
-            else if (command.includes('help')) {
-                client.replyNotice(roomId, event, 'Commands: avatar | name')
-            }
+            else if (command.includes('clear')) { await clearContext(client, roomId, event) }
+            else if (command.includes('help')) { client.replyNotice(roomId, event, 'Commands: avatar | name') }
             else { await askLLM(client, roomId, event) }
             await client.setTyping(roomId, false, 500)
         }

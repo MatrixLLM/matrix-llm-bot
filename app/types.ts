@@ -67,6 +67,6 @@ type CommonMatrixEventFields = {
   export type MembershipType = 'leave' | 'invite' | 'join'
   
   export type Context = {
-    conversationId: string;
-    parentMessageId: string;
+    conversationId?: string;
+    parentMessageId?: string;
   }
