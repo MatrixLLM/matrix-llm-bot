@@ -89,7 +89,7 @@ async function onEvents(client : MatrixClient) {
 }
 
 export async function setupClient() {
-    const storage = REDIS_URL ? new SimpleFsStorageProvider('./data/bot.json') : new RedisStorageProvider('./data/bot.json');
+    const storage = REDIS_URL ? new RedisStorageProvider('./data/bot.json') : new SimpleFsStorageProvider('./data/bot.json') ;
     const crypto = new RustSdkCryptoStorageProvider('./data/crypto');
     const client = new MatrixClient(homeserverUrl, ACCESS_TOKEN, storage, crypto);
 
