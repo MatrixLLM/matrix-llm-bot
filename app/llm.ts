@@ -1,8 +1,12 @@
+import Markdown from 'markdown-it';
+
 import { LogService, MatrixClient } from "matrix-bot-sdk";
 
-import { LLM_API_URL } from "settings";
+import { LLM_API_URL, THREADS } from "settings";
 import { Context, MessageEvent } from "types";
 import { replyNotice } from 'utils';
+
+const md = Markdown();
 
 export async function changeModel(client: MatrixClient, roomId: string, event: any, ) {
     client.replyNotice(roomId, event, 'changeModel: Not implemented error!')
@@ -28,9 +32,9 @@ export async function askLLM(client: MatrixClient, roomId: string, event: Messag
                 'conversationId': output.conversationId,
                 'parentMessageId': output.messageId // TODO: fix upstream to use output.parentMessageId
             })
-            replyNotice(client, roomId, event, `${output.response}`, true)
+            replyNotice(client, roomId, event, output.response, THREADS, md.render(output.response))
         } else {
-            replyNotice(client, roomId, event, response.status + ': ' + response.statusText, true)
+            replyNotice(client, roomId, event, response.status + ': ' + response.statusText, THREADS)
             LogService.error('LlmApi', response)
         } 
     }).catch((error: any) => {LogService.error('LlmApi', error)})

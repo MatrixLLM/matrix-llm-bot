@@ -19,6 +19,7 @@ export const {
   ENCRYPTION,
   REQUIRE_MENTION,
   REQUIRE_MENTION_DM,
+  THREADS
 } = parseEnv(process.env, {
   /** Matrix Bot Settings */
   LLM_API_URL:          { schema: z.string().url().default("http://localhost:3000/conversation"),
@@ -47,4 +48,6 @@ export const {
     description: "Set to false if you want the bot to answer to all messages in a thread/conversation"},
   REQUIRE_MENTION_DM:   { schema: z.boolean().default(false),
     description: "Set to false if you want the bot to answer to all messages in a one-to-one room"},
+  THREADS:              { schema: z.boolean().default(true),
+    description: "Set to true if you want the bot to answer always in a new thread/conversation"},
 });

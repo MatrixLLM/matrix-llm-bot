@@ -2,7 +2,7 @@ import { AutojoinRoomsMixin, LogService, LogLevel, MatrixAuth, MatrixClient, Ric
 import { startClient, awaitMoreInput, onMessage, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
 import { askLLM, changeModel, changeVoice } from 'llm'
-import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, REDIS_URL, WHITELIST } from 'settings';
+import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, REDIS_URL, WHITELIST, THREADS } from 'settings';
 import { RedisStorageProvider } from 'storage';
 import { MessageEvent } from 'types';
 
@@ -32,7 +32,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeAvatar
                     }, 
                     'Setting new avatar! If your next message is an image, I will update my avatar to that.',
-                    true);    
+                    false);    
             }
             else if (command.includes('name') || command.includes('handle')) {
                 awaitMoreInput(client, roomId, event, true, 
@@ -42,7 +42,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeDisplayname
                     }, 
                     'Setting new display name! I\'ll set it to the contents of your next message.',
-                    true);
+                    false);
             }
             else if (command.includes('model') || command.includes('engine')) {
                 awaitMoreInput(client, roomId, event, true, 
@@ -52,7 +52,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeModel
                     }, 
                     'I\'ll set the model to the content of your next message. Available actors: frontend-dev',
-                    true);
+                    false);
             }
             else if (command.includes('voice') || command.includes('actor')) {
                 awaitMoreInput(client, roomId, event, true, 
@@ -62,7 +62,7 @@ async function onEvents(client : MatrixClient) {
                         functionToExecute: changeVoice
                     }, 
                     'I\'ll set the voice to the content of your next message. Available voices: frontend-dev',
-                    true);
+                    false);
             }
             else if (command.includes('help')) {
                 client.replyNotice(roomId, event, 'Commands: avatar | name')
