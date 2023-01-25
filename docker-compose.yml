@@ -11,26 +11,26 @@ services:
     build: https://github.com/tuannm151/node-chatgpt-api.git#main
     volumes:
       - './llm-settings.js:/app/settings.js'
-  redis-db:
-    container_name: redis-db
-    command: bash -c "redis-server --appendonly yes"
-    image: redis
-    # Leave ports shut or set a password if exposed online
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./data/redis:/data
-  redis-ui:
-    image: patrikx3/p3x-redis-ui:latest
-    ports:
-        - 7843:7843
-    volumes:
-        - ./data/redis-ui/:/settings
+  # redis-db:
+  #   container_name: redis-db
+  #   command: bash -c "redis-server --appendonly yes"
+  #   image: redis
+  #   # Leave ports shut or set a password if exposed online
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./data/redis:/data
+  # redis-ui:
+  #   image: patrikx3/p3x-redis-ui:latest
+  #   ports:
+  #       - 7843:7843
+  #   volumes:
+  #       - ./data/redis-ui/:/settings
   matrix-llm-bot:
     container_name: matrix-llm-bot
     depends_on:
       - llm-api
-      - redis-db
+      # - redis-db
     env_file:
         "./.env"
     environment:
