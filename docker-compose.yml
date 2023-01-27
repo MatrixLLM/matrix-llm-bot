@@ -1,8 +1,8 @@
 version: '3.3'
 services:
   llm-api:
-    command: "supervisord -c /app/supervisord.conf"
     container_name: llm-api
+    command: "supervisord -c /app/supervisord.conf"
     # Leave 8045 shut or set a password on VNC if exposed online
     # Leave 3000 shut if only using docker
     ports:
@@ -21,6 +21,7 @@ services:
   #   volumes:
   #     - ./data/redis:/data
   # redis-ui:
+  #   container_name: redis-ui
   #   image: patrikx3/p3x-redis-ui:latest
   #   ports:
   #       - 7843:7843
