@@ -8,6 +8,18 @@ import { replyNotice } from 'utils';
 
 const md = Markdown();
 
+export async function changeAvatar(client: MatrixClient, roomId : string, event : any) {
+    client.setAvatarUrl(event.content.url).then(() => {
+        replyNotice(client, roomId, event, 'Avatar updated!', THREADS)
+    });
+}
+
+export async function changeDisplayname(client: MatrixClient, roomId: string, event: any, ) {
+    client.setDisplayName(event.content.body).then(() => {
+        replyNotice(client, roomId, event, 'Updated display name!', THREADS)
+    });  
+}
+
 export async function changeModel(client: MatrixClient, roomId: string, event: any) {
     replyNotice(client, roomId, event, 'changeModel: Not implemented error!', THREADS)
 }
@@ -17,8 +29,9 @@ export async function changeVoice(client: MatrixClient, roomId: string, event: a
 }
 
 export async function clearContext(client: MatrixClient, roomId: string, event: any, ) {
-    storeContext(client, roomId, event, {})
-    replyNotice(client, roomId, event, 'Context cleared', THREADS)
+    storeContext(client, roomId, event, {}).then(() => {
+        replyNotice(client, roomId, event, 'Context cleared', THREADS)
+    });
 }
 
 export async function askLLM(client: MatrixClient, roomId: string, event: MessageEvent, llm="chatgpt") {

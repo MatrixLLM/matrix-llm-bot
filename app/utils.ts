@@ -157,6 +157,7 @@ export function onMessage(client: MatrixClient,
         if (!event['content']) return;  // If no content, skip
         
         const sender = event['sender'];
+        const clientId = await client.getUserId()
         if (sender == clientId) return;  // If message is from this bot, skip
         
         const content = event['content'];

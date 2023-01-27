@@ -1,8 +1,7 @@
 import Markdown from 'markdown-it';
 import { AutojoinRoomsMixin, LogService, LogLevel, MatrixAuth, MatrixClient, RichConsoleLogger, SimpleFsStorageProvider, RustSdkCryptoStorageProvider } from 'matrix-bot-sdk';
-import { startClient, changeAvatar, changeDisplayname } from 'matrix-bot-starter';
 
-import { askLLM, changeModel, changeVoice, clearContext } from 'commands'
+import { askLLM, changeAvatar, changeDisplayname, changeModel, changeVoice, clearContext } from 'commands'
 import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, REDIS_URL, WHITELIST, THREADS } from 'settings';
 import { RedisStorageProvider } from 'storage';
 import { MessageEvent } from 'types';
@@ -90,19 +89,11 @@ async function onEvents(client : MatrixClient) {
     });
 }
 
-export async function setupClient() {
-    const storage = REDIS_URL ? new RedisStorageProvider('./data/bot.json') : new SimpleFsStorageProvider('./data/bot.json') ;
-    const crypto = new RustSdkCryptoStorageProvider('./data/crypto');
-    const client = new MatrixClient(homeserverUrl, ACCESS_TOKEN, storage, crypto);
+const storage = REDIS_URL ? new RedisStorageProvider('./data/bot.json') : new SimpleFsStorageProvider('./data/bot.json') ;
+const crypto = new RustSdkCryptoStorageProvider('./data/crypto');
+const client = new MatrixClient(HOMESERVER_URL, ACCESS_TOKEN, storage, crypto);
 
-    globalThis.clientId = await client.getUserId();
-    if (AUTOJOIN) AutojoinRoomsMixin.setupOnClient(client);
-    await client.crypto.prepare(await client.getJoinedRooms());
-
-    return client;
-}
-
-async function newClient() : Promise<MatrixClient> {
+async function main() {
     if (!ACCESS_TOKEN){
         if (LOGINNAME !== undefined && PASSWORD !== undefined) {
             const authedClient = await (new MatrixAuth(HOMESERVER_URL)).passwordLogin(LOGINNAME, PASSWORD);
@@ -110,8 +101,14 @@ async function newClient() : Promise<MatrixClient> {
             throw Error("Set ACCESS_TOKEN to above token, LOGINNAME and PASSWORD should now be blank")
         } else { throw Error("You need to set at least ACCESS_TOKEN") }
     }
-    return setupClient().then(startClient);
-}
-newClient().then((client : MatrixClient) => {
+    
+    if (AUTOJOIN) AutojoinRoomsMixin.setupOnClient(client);
+    await client.crypto.prepare(await client.getJoinedRooms());
+
+    await client.start();
+    console.log('Client started!');
+    console.log(`Logged in as ${await client.getUserId()} on ${client.homeserverUrl}`);
     onEvents(client);
-});
+}
+
+main()
