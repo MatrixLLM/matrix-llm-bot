@@ -36,7 +36,7 @@ services:
         "./.env"
     environment:
       - LLM_API_URL=http://llm-api:3000/conversation
-      - REDIS_URL=redis://redis-db:6379
+      - KEYV_URL=redis://redis-db:6379
     # image: ghcr.io/matrixllm/matrix-llm-bot:latest
     build: .
     volumes:

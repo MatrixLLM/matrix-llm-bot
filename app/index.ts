@@ -2,8 +2,8 @@ import Markdown from 'markdown-it';
 import { AutojoinRoomsMixin, LogService, LogLevel, MatrixAuth, MatrixClient, RichConsoleLogger, SimpleFsStorageProvider, RustSdkCryptoStorageProvider } from 'matrix-bot-sdk';
 
 import { askLLM, changeAvatar, changeDisplayname, changeModel, changeVoice, clearContext } from 'commands'
-import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, REDIS_URL, WHITELIST, THREADS } from 'settings';
-import { RedisStorageProvider } from 'storage';
+import { AUTOJOIN, ACCESS_TOKEN, BLACKLIST, HOMESERVER_URL, LOGINNAME, PASSWORD, KEYV_URL, WHITELIST, THREADS } from 'settings';
+import { KeyvStorageProvider } from 'storage';
 import { MessageEvent } from 'types';
 import { awaitMoreInput, onMessage } from 'utils';
 
@@ -82,14 +82,14 @@ async function onEvents(client : MatrixClient) {
             else if (command === 'help' || command === 'commands') {
                 client.replyNotice(roomId, event, COMMANDS, md.render(COMMANDS))
             }
-            // TODO: check for secondary commands from moreInput before asking LLM
+            // TODO: check for secondary commands from moreInput before asking LLM if this is a DM
             else { await askLLM(client, roomId, event) }
             await client.setTyping(roomId, false, 500)
         }
     });
 }
 
-const storage = REDIS_URL ? new RedisStorageProvider('./data/bot.json') : new SimpleFsStorageProvider('./data/bot.json') ;
+const storage = new KeyvStorageProvider('./data/bot.json');
 const crypto = new RustSdkCryptoStorageProvider('./data/crypto');
 const client = new MatrixClient(HOMESERVER_URL, ACCESS_TOKEN, storage, crypto);
 

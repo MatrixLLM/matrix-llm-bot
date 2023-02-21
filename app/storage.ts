@@ -1,15 +1,15 @@
 import { IFilterInfo, IStorageProvider, SimpleFsStorageProvider } from "matrix-bot-sdk";
-import { createClient } from 'redis';
+import Keyv = require("keyv");
 
-import { REDIS_URL } from "settings";
+import { KEYV_URL } from "settings";
 
 /**
  * A storage provider that uses the disk to store information.
  * @category Storage providers
  */
-export class RedisStorageProvider extends SimpleFsStorageProvider {
+export class KeyvStorageProvider extends SimpleFsStorageProvider {
 
-    private redisClient: any;
+    private keyv: any;
     
     /**
      * Creates a new simple file system storage provider.
@@ -19,20 +19,19 @@ export class RedisStorageProvider extends SimpleFsStorageProvider {
      */
     constructor(filename: string, trackTransactionsInMemory: boolean = true, maxInMemoryTransactions: number = 20) {
         super(filename, trackTransactionsInMemory, maxInMemoryTransactions)
-        this.redisClient = createClient({url: REDIS_URL});
-        this.redisClient.connect();
+        this.keyv = new Keyv(KEYV_URL);
     }
 
     readValue(key: string): string | null | undefined {
-        return this.redisClient.get(key)
+        return this.keyv.get(key)
     }
 
     storeValue(key: string, value: string): void {
-        this.redisClient.set(key, value);
+        this.keyv.set(key, value);
     }
 
     storageForUser(userId: string): IStorageProvider {
-        return new NamespacedRedisProvider(userId, this);
+        return new NamespacedKeyvProvider(userId, this);
     }
 }
 
@@ -40,8 +39,8 @@ export class RedisStorageProvider extends SimpleFsStorageProvider {
  * A namespaced storage provider that uses the disk to store information.
  * @category Storage providers
  */
-class NamespacedRedisProvider implements IStorageProvider {
-    constructor(private prefix: string, private parent: RedisStorageProvider) {
+class NamespacedKeyvProvider implements IStorageProvider {
+    constructor(private prefix: string, private parent: KeyvStorageProvider) {
     }
 
     setFilter(filter: IFilterInfo): Promise<any> | void {

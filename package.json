@@ -4,10 +4,11 @@
   "description": "Communicate with Large Language Models (LLMs) from Matrix",
   "main": "app/index.ts",
   "dependencies": {
+    "@keyv/redis": "^2.5.4",
     "dotenv": "^16.0.3",
+    "keyv": "^4.5.2",
     "markdown-it": "^13.0.1",
     "matrix-bot-sdk": "^0.6.3",
-    "redis": "^4.6.4",
     "sharp": "^0.31.3",
     "tsconfig-paths": "^4.1.2",
     "znv": "^0.3.2",

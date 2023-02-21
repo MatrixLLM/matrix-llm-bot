@@ -5,7 +5,7 @@ dotenv.config();
 
 export const {
   LLM_API_URL,
-  REDIS_URL,
+  KEYV_URL,
   /** Matrix Bot Settings */
   HOMESERVER_URL,
   ACCESS_TOKEN,
@@ -24,7 +24,7 @@ export const {
   /** Matrix Bot Settings */
   LLM_API_URL:          { schema: z.string().url().default("http://localhost:3000/conversation"),
     description: "Set LLM APIs location with 'http(s)://' prefix"},
-  REDIS_URL:            { schema: z.string().default(""),
+  KEYV_URL:            { schema: z.string().default(""),
     description: "Set to redis instance if you want to use redis instead of the file system for state"},
   HOMESERVER_URL:       { schema: z.string().url().default("https://matrix.org"),
     description: "Set matrix homeserver with 'https://' prefix"},
