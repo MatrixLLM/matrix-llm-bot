@@ -10,7 +10,7 @@
     "markdown-it": "^13.0.1",
     "matrix-bot-sdk": "^0.6.3",
     "sharp": "^0.31.3",
-    "tsconfig-paths": "^4.1.2",
+    "tsconfig-paths": "^4.2.0",
     "znv": "^0.3.2",
     "zod": "^3.21.4"
   },
