@@ -4,7 +4,7 @@
   "description": "Communicate with Large Language Models (LLMs) from Matrix",
   "main": "app/index.ts",
   "dependencies": {
-    "@keyv/redis": "^2.5.4",
+    "@keyv/redis": "^2.6.1",
     "dotenv": "^16.0.3",
     "keyv": "^4.5.2",
     "markdown-it": "^13.0.1",
